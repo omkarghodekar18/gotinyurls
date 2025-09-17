@@ -1,12 +1,6 @@
-# GoTinyUrls – Scalable URL Shortener with Live Analytics
+# GoTinyUrls – URL Shortener with Live Analytics
 
 GoTinyUrls is a full-featured URL shortener built with a **modern microservices architecture**. It provides fast and reliable URL shortening, real-time analytics, and scalable performance optimizations using **Redis, BullMQ, and MongoDB**.
-
----
-
-## Live Demo
-
-- [https://gotinyurls.netlify.app](https://gotinyurls.netlify.app/)
 
 ---
 
@@ -18,7 +12,7 @@ GoTinyUrls is a full-featured URL shortener built with a **modern microservices 
 - **Password-Protected Links**: Restrict access with user-defined passwords
 - **Expiry Dates**: Time-limited short URLs for temporary sharing
 - **QR Code Generation**: Automatic QR codes for every shortened link
-- **Bulk Operations**: Queue-based batch URL creation and management
+- **Bulk Operations**: Queue-based batch URL processing for real time analytics
 
 ### 👤 User Authentication
 
