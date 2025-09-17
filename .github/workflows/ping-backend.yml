@@ -10,6 +10,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Curl Render Backend
-        run: curl -s https://shortify-o6vy.onrender.com/ > /dev/null
-      - name: Curl Backend 2
+        run: curl -s https://codelive-qbeo.onrender.com > /dev/null
+      - name: Curl GoTinyUrls
         run: curl -s https://gotinyurls.onrender.com > /dev/null
