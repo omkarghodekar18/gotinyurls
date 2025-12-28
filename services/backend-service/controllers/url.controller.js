@@ -124,39 +124,216 @@ export const getUserUrls = async (req, res) => {
   }
 };
 
-export const getAnalytics = async (req, res) => {
-  try {
-    const { email, startDate, endDate, selectedUrl } = req.query;
+// export const getAnalytics = async (req, res) => {
+//   try {
+//     const { email, startDate, endDate, selectedUrl } = req.query;
 
-    let start = null,
-      end = null;
+//     let start = null,
+//       end = null;
 
-    if (startDate) {
-      start = toLocalDate(startDate);
-    }
+//     if (startDate) {
+//       start = toLocalDate(startDate);
+//     }
 
-    if (endDate) {
-      end = toLocalDate(endDate);
-    }
-    if (!email) {
-      return res.status(400).json({ message: "Email is required" });
-    }
+//     if (endDate) {
+//       end = toLocalDate(endDate);
+//     }
+//     if (!email) {
+//       return res.status(400).json({ message: "Email is required" });
+//     }
 
-    console.log("start : ", start, " end: ", end, " url: ", selectedUrl);
+//     console.log("start : ", start, " end: ", end, " url: ", selectedUrl);
 
-    const user = await User.findOne({ email: email });
+//     const user = await User.findOne({ email: email });
 
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
+//     if (!user) {
+//       return res.status(404).json({ message: "User not found" });
+//     }
 
-    const urls = await Url.find({ user: user._id }).lean();
-    const shortUrls = urls.map((u) => u.shortUrl);
+//     const urls = await Url.find({ user: user._id }).lean();
+//     const shortUrls = urls.map((u) => u.shortUrl);
 
-    if (!start && !end && !selectedUrl) {
-      // Date-based analytics: aggregate clicks per date for all user's URLs
-      const dateAnalytics = await UrlAnalytics.aggregate([
-        { $match: { shortUrl: { $in: shortUrls } } },
+//     let dateAnalytics = {};
+//     let regionAnalytics = {};
+
+//     if (!start && !end && !selectedUrl) {
+//       // Date-based analytics: aggregate clicks per date for all user's URLs
+//       dateAnalytics = await UrlAnalytics.aggregate([
+//         { $match: { shortUrl: { $in: shortUrls } } },
+//         {
+//           $group: {
+//             _id: "$date",
+//             clicks: { $sum: "$clicks" },
+//           },
+//         },
+//         {
+//           $project: {
+//             _id: 0,
+//             date: "$_id",
+//             clicks: 1,
+//           },
+//         },
+//         { $sort: { date: 1 } },
+//       ]);
+
+//       // Region-based analytics: aggregate clicks per region for all user's URLs
+//       regionAnalytics = await UrlRegionAnalytics.aggregate([
+//         { $match: { shortUrl: { $in: shortUrls } } },
+//         {
+//           $group: {
+//             _id: "$region", // group only by region
+//             clicks: { $sum: "$clicks" }, // sum clicks
+//             lat: { $first: "$lat" }, // pick first lat
+//             lng: { $first: "$lng" }, // pick first lng
+//           },
+//         },
+//         {
+//           $project: {
+//             _id: 0,
+//             region: "$_id",
+//             lat: 1,
+//             lng: 1,
+//             size: "$clicks",
+//           },
+//         },
+//         { $sort: { size: -1 } },
+//       ]);
+
+//       // const dateAnalytics = await UrlAnalytics.aggregate([
+//       //   { $match: { shortUrl: { $in: shortUrls } } },
+//       //   {
+//       //     $group: {
+//       //       _id: "$date",
+//       //       clicks: { $sum: "$clicks" },
+//       //     },
+//       //   },
+//       //   {
+//       //     $project: {
+//       //       _id: 0,
+//       //       date: "$date",
+//       //       clicks: "$clicks",
+//       //     },
+//       //   },
+//       // ]);
+
+//       console.log("Date: ", dateAnalytics);
+//       // console.log("Region: ", regionAnalytics);
+
+//       return res.status(200).json({
+//         // urls,
+//         regionAnalytics,
+//         dateAnalytics,
+//       });
+//     }
+
+//     else if(start && !end){
+//       console.log("here", start)
+//       if(!selectedUrl || selectedUrl === undefined){
+//         // date: { $gte: new Date(start), $lte: new Date(end) };
+
+//         // Data based analytics
+//         dateAnalytics = await UrlAnalytics.aggregate([
+//         { $match: { 
+//           shortUrl: { $in: shortUrls },
+//           // date: { $gte: new Date(start), $lte: new Date(end) } 
+//           date: { $gte: new Date(start) } 
+//          }
+//         },
+//         {
+//           $group: {
+//             _id: "$date",
+//             clicks: { $sum: "$clicks" },
+//           },
+//         },
+//         {
+//           $project: {
+//             _id: 0,
+//             date: "$_id",
+//             clicks: 1,
+//           },
+//         },
+//         { $sort: { date: 1 } },
+//         ]);
+
+//         // Region-based analytics: aggregate clicks per region for all user's URLs
+//       regionAnalytics = await UrlRegionAnalytics.aggregate([
+//         { $match: { 
+//           shortUrl: { $in: shortUrls },
+//           // date: { $gte: new Date(start), $lte: new Date(end) }
+//           date: { $gte: new Date(start) }
+//         } },
+//         {
+//           $group: {
+//             _id: "$region", // group only by region
+//             clicks: { $sum: "$clicks" }, // sum clicks
+//             lat: { $first: "$lat" }, // pick first lat
+//             lng: { $first: "$lng" }, // pick first lng
+//           },
+//         },
+//         {
+//           $project: {
+//             _id: 0,
+//             region: "$_id",
+//             lat: 1,
+//             lng: 1,
+//             size: "$clicks",
+//           },
+//         },
+//         { $sort: { size: -1 } },
+//       ]);
+
+//       }
+
+//       console.log("Data analytics: ", dateAnalytics);
+//       console.log("region analytics: ", regionAnalytics);
+
+//       return res.status(200).json({
+//           // urls,
+//           regionAnalytics,
+//           dateAnalytics,
+//         });
+//     }
+
+
+//   } catch (err) {
+//     res.status(500).json({ message: "Server error" });
+//   }
+// };
+
+
+
+  export const getAnalytics = async (req, res) => {
+    try {
+      const { email, startDate, endDate, selectedUrl } = req.query;
+
+      if (!email) return res.status(400).json({ message: "Email is required" });
+
+      const user = await User.findOne({ email });
+      if (!user) return res.status(404).json({ message: "User not found" });
+
+      let urlQuery = { user: user._id };
+
+      if (startDate) {
+        urlQuery.createdAt = { $gte: new Date(startDate) };
+      }
+
+      if (endDate) {
+        urlQuery.expiresAt = { $lte: new Date(endDate) };
+      }
+
+      const urls = await Url.find(urlQuery).lean();
+      const shortUrls = urls.map((u) => u.shortUrl);
+
+      const urlFilter = selectedUrl ? [selectedUrl] : shortUrls;
+      console.log("filtered: ", urlFilter)
+
+      // Data based analytics
+       const dateAnalytics = await UrlAnalytics.aggregate([
+        { $match: { 
+          shortUrl: { $in: urlFilter },
+          // date: { $gte: new Date(start), $lte: new Date(end) } 
+         }
+        },
         {
           $group: {
             _id: "$date",
@@ -171,11 +348,14 @@ export const getAnalytics = async (req, res) => {
           },
         },
         { $sort: { date: 1 } },
-      ]);
+        ]);
 
-      // Region-based analytics: aggregate clicks per region for all user's URLs
+        // Region-based analytics: aggregate clicks per region for all user's URLs
       const regionAnalytics = await UrlRegionAnalytics.aggregate([
-        { $match: { shortUrl: { $in: shortUrls } } },
+        { $match: { 
+          shortUrl: { $in: urlFilter },
+          // date: { $gte: new Date(start), $lte: new Date(end) }
+        } },
         {
           $group: {
             _id: "$region", // group only by region
@@ -196,33 +376,11 @@ export const getAnalytics = async (req, res) => {
         { $sort: { size: -1 } },
       ]);
 
-      // const dateAnalytics = await UrlAnalytics.aggregate([
-      //   { $match: { shortUrl: { $in: shortUrls } } },
-      //   {
-      //     $group: {
-      //       _id: "$date",
-      //       clicks: { $sum: "$clicks" },
-      //     },
-      //   },
-      //   {
-      //     $project: {
-      //       _id: 0,
-      //       date: "$date",
-      //       clicks: "$clicks",
-      //     },
-      //   },
-      // ]);
+      // console.log(regionAnalytics, dateAnalytics);
 
-      console.log("Date: ", dateAnalytics);
-      // console.log("Region: ", regionAnalytics);
-
-      return res.status(200).json({
-        // urls,
-        regionAnalytics,
-        dateAnalytics,
-      });
+      return res.status(200).json({ regionAnalytics, dateAnalytics });
+    } catch (err) {
+      console.error("Error in getAnalytics:", err);
+      res.status(500).json({ message: "Server error" });
     }
-  } catch (err) {
-    res.status(500).json({ message: "Server error" });
-  }
-};
+  };
